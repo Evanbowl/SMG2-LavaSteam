@@ -42,7 +42,7 @@ void LavaSteam::init(const JMapInfoIter& rIter) {
 }
 
 void LavaSteam::initAfterPlacement() {
-    TMtx34f mtx;
+    TRot3f mtx;
     mtx.identity();
     TVec3f vec = mRotation*0.017453292f;
 
@@ -50,30 +50,27 @@ void LavaSteam::initAfterPlacement() {
     f32 vecy = vec.y;
     f32 vecx = vec.x;
 
-    f32 cosz = cos(vecz);
-    f32 cosy = cos(vecy);
-    f32 cosx = cos(vecx);
-    f32 siny = sin(vecy);
-    f32 sinz = sin(vecz);
-    f32 sinx = sin(vecx); 
+    f32 v11 = cos(vecz); //f28
+    f32 v12 = cos(vecy); // f27
+    f32 v13 = cos(vecx); // f26
+    f32 v15 = sin(vecy); // f25
+    f32 v14 = sin(vecz); //f23
+    f32 v16 = sin(vecx); //f9
 
+    mtx.mMtx[0][0] = v12 * v11;
+    mtx.mMtx[2][1] = v16 * v12;
+    mtx.mMtx[1][0] = v12 * v14;
+    mtx.mMtx[1][1] = (v13 * v11) + (v16 * v15 * v14) ;
+    mtx.mMtx[0][1] = ( v16 * v15 * v11) - (v13 * v14);
+    mtx.mMtx[0][2] = (v13 * v11 * v15) + (v16 * v14);
+    mtx.mMtx[2][0] = -v15;
+    mtx.mMtx[2][2] = v12 * v13;
+    mtx.mMtx[1][2] = (v13 * v14 * v15) - (v16 * v11);
 
-    mtx.mMtx[0][0] = (cosy*cosz);
-    f32 v2 = (sinx*cosy);
-    mtx.mMtx[2][1] = v2;
-    mtx.mMtx[1][0] = (cosy*sinz);
-    f32 v1 = ((cosx * cosz) + ((sinx * siny) * sinz));
-    mtx.mMtx[1][1] = v1;
-    f32 v0 = (((sinx * siny) * cosz) - (cosx * sinz));
-    mtx.mMtx[0][1] = v0;
-    mtx.mMtx[0][2] = ((cosx * cosz) * siny) + (sinx * sinz);
-    mtx.mMtx[2][2] = (cosx * cosy);
-    mtx.mMtx[1][2] = ((cosx * sinz) * siny) - (sinx * cosz);
-    mtx.mMtx[2][0] = -siny;
-
-    _90.set(v0, v1, v2);
+    _90.set(mtx.mMtx[0][1], mtx.mMtx[1][1], mtx.mMtx[2][1]);
     MR::normalize(&_90);
 }
+
 
 void LavaSteam::attackSensor(HitSensor* pSender, HitSensor* pReceiver) {
     TVec3f stack_64;

@@ -1,0 +1,8 @@
+{
+  "Version": 1,
+  "Files": [
+    "disc/ObjectData/LavaSteam.arc",
+    "include/LavaSteam.h",
+    "source/LavaSteam.cpp"
+  ]
+}
