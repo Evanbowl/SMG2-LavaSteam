@@ -3,8 +3,8 @@
 
 LavaSteam::LavaSteam(const char* pName) : LiveActor(pName) {
     mInterval = 90;
-    mSignDelay = 120;
-    mSteamDelay = 90;
+    mSignTime = 90;
+    mSteamTime = 90;
     _90.x = 0.0f;
     _90.y = 1.0f;
     _90.z = 0.0f;
@@ -15,8 +15,8 @@ LavaSteam::LavaSteam(const char* pName) : LiveActor(pName) {
 void LavaSteam::init(const JMapInfoIter& rIter) {
     MR::processInitFunction(this, rIter, false);
     MR::getJMapInfoArg0NoInit(rIter, &mInterval);
-    MR::getJMapInfoArg1NoInit(rIter, &mSignDelay);
-    MR::getJMapInfoArg2NoInit(rIter, &mSteamDelay);
+    MR::getJMapInfoArg1NoInit(rIter, &mSignTime);
+    MR::getJMapInfoArg2NoInit(rIter, &mSteamTime);
     MR::getJMapInfoArg3NoInit(rIter, &mSteamForeverMode);
 
     initHitSensor(1);
@@ -50,17 +50,17 @@ void LavaSteam::initAfterPlacement() {
     f32 vecy = vec.y;
     f32 vecx = vec.x;
 
-    f32 v11 = cos(vecz); //f28
-    f32 v12 = cos(vecy); // f27
-    f32 v13 = cos(vecx); // f26
-    f32 v15 = sin(vecy); // f25
-    f32 v14 = sin(vecz); //f23
-    f32 v16 = sin(vecx); //f9
+    f32 v11 = cos(vecz); 
+    f32 v12 = cos(vecy);
+    f32 v13 = cos(vecx);
+    f32 v15 = sin(vecy);
+    f32 v14 = sin(vecz); 
+    f32 v16 = sin(vecx);
 
     mtx.mMtx[0][0] = v12 * v11;
     mtx.mMtx[2][1] = v16 * v12;
     mtx.mMtx[1][0] = v12 * v14;
-    mtx.mMtx[1][1] = (v13 * v11) + (v16 * v15 * v14) ;
+    mtx.mMtx[1][1] = (v13 * v11) + (v16 * v15 * v14);
     mtx.mMtx[0][1] = ( v16 * v15 * v11) - (v13 * v14);
     mtx.mMtx[0][2] = (v13 * v11 * v15) + (v16 * v14);
     mtx.mMtx[2][0] = -v15;
@@ -126,6 +126,13 @@ void LavaSteam::attackSensor(HitSensor* pSender, HitSensor* pReceiver) {
     }
 }
 
+void LavaSteam::startClipped() {
+    LiveActor::startClipped();
+    
+    if (!mSteamForeverMode)
+        MR::deleteEffectAll(this);
+}
+
 void LavaSteam::startSteam() {
     setNerve(&NrvLavaSteam::HostTypeSteam::sInstance);
 }
@@ -137,16 +144,16 @@ void LavaSteam::exeWait() {
         mEffectSRTVec.setAll(1.0f);
     }
 
-    if (MR::isGreaterStep(this, mSignDelay-38) && MR::isLessStep(this, mSignDelay-30)) {
+    if (MR::isGreaterStep(this, mSignTime-38) && MR::isLessStep(this, mSignTime-30)) {
         int step = getNerveStep();
-        f32 f = MR::getEaseInValue(((mSignDelay-30)-step)*0.125f, 0.001f, 1.0f, 1.0f);
+        f32 f = MR::getEaseInValue(((mSignTime-30)-step)*0.125f, 0.001f, 1.0f, 1.0f);
         mEffectSRTVec.setAll(f);
     }
 
-    if (MR::isStep(this, mSignDelay))
+    if (MR::isStep(this, mSignTime))
         MR::forceDeleteEffect(this, "Sign");
 
-    if (MR::isStep(this, mSignDelay+30))
+    if (MR::isStep(this, mSignTime+30))
         setNerve(&NrvLavaSteam::HostTypeSteam::sInstance);
 }
 
@@ -158,7 +165,7 @@ void LavaSteam::exeSteam() {
 
     MR::startLevelSound(this, "SE_OJ_LV_LAVA_STEAM_OUT", -1, -1, -1);
 
-    if (MR::isStep(this, mSteamDelay) && !mSteamForeverMode) {
+    if (MR::isStep(this, mSteamTime) && !mSteamForeverMode) {
         MR::deleteEffect(this, "Steam");
         setNerve(&NrvLavaSteam::HostTypeSteamEnd::sInstance);
     }
