@@ -91,7 +91,7 @@ void LavaSteam::attackSensor(HitSensor* pSender, HitSensor* pReceiver) {
                 TVec3f stack_48;
                 stack_48.set(stack_3C);
 
-                stack_54 = 70.0;
+                stack_54 = 70.0f;
 
                 TVec3f stack_20;
                 stack_20.set(pReceiver->mPosition);
