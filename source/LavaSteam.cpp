@@ -5,38 +5,48 @@ LavaSteam::LavaSteam(const char* pName) : LiveActor(pName) {
     mInterval = 90;
     mSignTime = 90;
     mSteamTime = 90;
-    _90.x = 0.0f;
-    _90.y = 1.0f;
-    _90.z = 0.0f;
-    mEffectSRTVec = TVec3f(1.0f, 1.0f, 1.0f);
+    _9C = TVec3f(0.0f, 1.0f, 0.0f);
+    mEffectSRTVec = TVec3f(1.0f);
     mSteamForeverMode = false;
 }
 
 void LavaSteam::init(const JMapInfoIter& rIter) {
+    bool signOnActivate = false;
     MR::processInitFunction(this, rIter, false);
     MR::getJMapInfoArg0NoInit(rIter, &mInterval);
     MR::getJMapInfoArg1NoInit(rIter, &mSignTime);
     MR::getJMapInfoArg2NoInit(rIter, &mSteamTime);
-    MR::getJMapInfoArg3NoInit(rIter, &mSteamForeverMode);
-
-    initHitSensor(1);
+    MR::getJMapInfoArg3NoInit(rIter, &signOnActivate);
+    MR::getJMapInfoArg4NoInit(rIter, &mSteamForeverMode);
 
     MR::setEffectHostSRT(this, "Sign", &mTranslation, &mRotation, &mEffectSRTVec);
-    HitSensor* pSensor = MR::addHitSensorMapObj(this, "body", 8, 250.0f, TVec3f(0.0f, 250.0f, 0.0f));
+
+    HitSensor* pSensor = getSensor("body");
     
     MR::setClippingTypeSphere(this, 250.0f, &pSensor->mPosition);
+
     initNerve(&NrvLavaSteam::HostTypeWait::sInstance, 0);
+
+
+    void (LavaSteam::* func)() = &LavaSteam::startSteam;
+
+    if (signOnActivate)
+        func = &LavaSteam::startSteamSign;
     
     if (MR::useStageSwitchReadA(this, rIter)) {
         setNerve(&NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance);
-        MR::listenStageSwitchOnA(this, MR::Functor(this, &LavaSteam::startSteam));
+        MR::listenStageSwitchOnA(this, MR::Functor(this, func));
     }
     else if (MR::tryRegisterDemoCast(this, rIter)) {
         setNerve(&NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance);
-        MR::registerDemoActionFunctor(this, MR::Functor(this, &LavaSteam::startSteam), 0);
+        MR::registerDemoActionFunctor(this, MR::Functor(this, func), 0);
     }
     else if (mSteamForeverMode)
         setNerve(&NrvLavaSteam::HostTypeSteam::sInstance);
+    
+    if (MR::useStageSwitchReadB(this, rIter))
+        MR::listenStageSwitchOnB(this, MR::Functor(this, &LavaSteam::setOff));
+
     //MR::useStageSwitchSleep(this, rIter);
     makeActorAppeared();
 }
@@ -67,8 +77,8 @@ void LavaSteam::initAfterPlacement() {
     mtx.mMtx[2][2] = v12 * v13;
     mtx.mMtx[1][2] = (v13 * v14 * v15) - (v16 * v11);
 
-    _90.set(mtx.mMtx[0][1], mtx.mMtx[1][1], mtx.mMtx[2][1]);
-    MR::normalize(&_90);
+    _9C.set(mtx.mMtx[0][1], mtx.mMtx[1][1], mtx.mMtx[2][1]);
+    MR::normalize(&_9C);
 }
 
 
@@ -77,13 +87,13 @@ void LavaSteam::attackSensor(HitSensor* pSender, HitSensor* pReceiver) {
     TVec3f stack_58;
     f32 stack_2C, stack_54;
     
-    if (!isNerve(&NrvLavaSteam::HostTypeWait::sInstance) && !isNerve(&NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance)) {
+    if (!isNerve(&NrvLavaSteam::HostTypeWait::sInstance) && !isNerve(&NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance) && !isNerve(&NrvLavaSteam::HostTypeOff::sInstance)) {
         if (MR::isSensorPlayerOrRide(pReceiver)) {
             f32 rad = pReceiver->mRadius;
             f32 f31 = rad*0.69999999f;
             
             if (isNerve(&NrvLavaSteam::HostTypeSteam::sInstance)) {
-                TVec3f stack_30 =_90*400.0f;
+                TVec3f stack_30 =_9C*400.0f;
                 TVec3f stack_3C = TVec3f(mTranslation);
                 
                 JMathInlineVEC::PSVECAdd2((Vec*)&stack_3C, (Vec*)&stack_30, (Vec*)&stack_3C);
@@ -105,7 +115,7 @@ void LavaSteam::attackSensor(HitSensor* pSender, HitSensor* pReceiver) {
             }
         
             if (isNerve(&NrvLavaSteam::HostTypeSteam::sInstance)) {
-                TVec3f stack_14 = _90*330.0f;
+                TVec3f stack_14 = _9C*330.0f;
 
                 stack_58.set(mTranslation);
                 stack_64.set(stack_14);
@@ -176,6 +186,20 @@ void LavaSteam::exeSteamEnd() {
         setNerve(&NrvLavaSteam::HostTypeWait::sInstance);
 }
 
+void LavaSteam::exeOff() {
+    if (MR::isFirstStep(this)) {
+        MR::deleteEffectAll(this);
+    }
+}
+
+void LavaSteam::startSteamSign() {
+    setNerve(&NrvLavaSteam::HostTypeWait::sInstance);
+}
+
+void LavaSteam::setOff() {
+    setNerve(&NrvLavaSteam::HostTypeOff::sInstance);
+}
+
 LavaSteam::~LavaSteam() {
 
 }
@@ -196,8 +220,13 @@ namespace NrvLavaSteam {
         ((LavaSteam*)pSpine->mExecutor)->exeSteamEnd();
     }
 
+    void HostTypeOff::execute(Spine* pSpine) const {
+        ((LavaSteam*)pSpine->mExecutor)->exeOff();
+    }
+
     HostTypeWait(HostTypeWait::sInstance);
     HostTypeWaitForSwitchOn(HostTypeWaitForSwitchOn::sInstance);
     HostTypeSteam(HostTypeSteam::sInstance);
     HostTypeSteamEnd(HostTypeSteamEnd::sInstance);
+    HostTypeOff(HostTypeOff::sInstance);
 }

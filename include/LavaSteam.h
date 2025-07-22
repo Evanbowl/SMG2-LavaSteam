@@ -13,11 +13,14 @@ public:
     void exeWait();
     void exeSteam();
     void exeSteamEnd();
+    void exeOff();
+    void startSteamSign();
+    void setOff();
 
     s32 mInterval;
     s32 mSignTime;
     s32 mSteamTime;
-    TVec3f _90;
+    TVec3f _9C;
     TVec3f mEffectSRTVec;
     bool mSteamForeverMode;
 };
@@ -27,4 +30,5 @@ namespace NrvLavaSteam {
     NERVE(HostTypeSteam);
     NERVE(HostTypeWait);
     NERVE(HostTypeWaitForSwitchOn);
+    NERVE(HostTypeOff);
 };
