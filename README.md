@@ -3,9 +3,9 @@ The hot steam it emits damages the player on contact.<br/>
 This actor is not present in *Super Mario Galaxy 2*.<br/><br/>
 
 Lava Steam has three distinct phases.<br/>
-Phase 1: The Lava Steam is inactive.<br/>
-Phase 2: Sign: The Lava Steam emits a small and harmless steam cloud.<br/>
-Phase 3: Steam: The Lava Steam emits a large steam cloud and damages the player on contact.<br/>
+Wait Phase: The Lava Steam is not emitting any steam.<br/>
+Sign Phase: The Lava Steam emits a small and harmless steam cloud.<br/>
+Steam Phase: The Lava Steam emits a large steam cloud and damages the player on contact.<br/>
 
 The `SW_SLEEP` functionality has been removed from Lava Steam since this Switch option as a whole is not present in SMG2.<br/>
 
@@ -28,4 +28,8 @@ You will need to refer to `jp_name` when referencing the Lava Steam in a demo.<b
 
 |en_name|jp_name|
 |-|-|
-|`LavaSteam`|`溶岩スチーム`|
+|`LavaSteam`|`溶岩スチーム`|<br/>
+
+Credits:<br/>
+VTX, Decoder0007, and Rinusoide for support.<br/>
+Alex SMG for being willing to help test something I did not tell him about.
