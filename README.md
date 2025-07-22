@@ -19,6 +19,7 @@ This variant of `LavaSteam` comes with new parameters.
 |`Obj_arg2`|long|Steam Time|Time, in frames, of the Steam phase.|90 frames|
 |`Obj_arg3`|bool|Sign on Activation?|On `SW_A` or `Demo` activation, start from the Sign phase instead of Steam phase on activation.|false (Steam Phase)|
 |`Obj_arg4`|bool|Steam Forever?|If activated, the Steam phase never stops.|false|
+|`Obj_arg5`|bool|Invert Switch and Demo behavior|If set, the Steam will be deactivated by Demo and `SW_A`.|false|
 |`SW_A (Read)`|-|Activate|Activates and starts from the phase defined in `Obj_arg3`.|-|
 |`SW_B (Read)`|-|Deactivate|Deactivates the steam emission.|-|
 |Demo|-|Activate|Activates and starts from the phase defined in `Obj_arg3`.<br/>Use `ActionType` 3 in the demo sheet.|-|<br/>

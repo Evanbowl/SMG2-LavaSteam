@@ -12,12 +12,14 @@ LavaSteam::LavaSteam(const char* pName) : LiveActor(pName) {
 
 void LavaSteam::init(const JMapInfoIter& rIter) {
     bool signOnActivate = false;
+    bool offMode = false;
     MR::processInitFunction(this, rIter, false);
     MR::getJMapInfoArg0NoInit(rIter, &mInterval);
     MR::getJMapInfoArg1NoInit(rIter, &mSignTime);
     MR::getJMapInfoArg2NoInit(rIter, &mSteamTime);
     MR::getJMapInfoArg3NoInit(rIter, &signOnActivate);
     MR::getJMapInfoArg4NoInit(rIter, &mSteamForeverMode);
+    MR::getJMapInfoArg5NoInit(rIter, &offMode);
 
     MR::setEffectHostSRT(this, "Sign", &mTranslation, &mRotation, &mEffectSRTVec);
 
@@ -25,20 +27,29 @@ void LavaSteam::init(const JMapInfoIter& rIter) {
     
     MR::setClippingTypeSphere(this, 250.0f, &pSensor->mPosition);
 
-    initNerve(&NrvLavaSteam::HostTypeWait::sInstance, 0);
-
-
+    Nerve* pNerve = &NrvLavaSteam::HostTypeWait::sInstance;
+    initNerve(pNerve, 0);
+    
     void (LavaSteam::* func)() = &LavaSteam::startSteam;
 
-    if (signOnActivate)
+    if (signOnActivate) {
         func = &LavaSteam::startSteamSign;
+    }
+    else {
+        if (offMode) {
+            pNerve = &NrvLavaSteam::HostTypeWait::sInstance;
+            func = &LavaSteam::setOff;
+        }
+        else
+            pNerve = &NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance;
+    }
     
     if (MR::useStageSwitchReadA(this, rIter)) {
-        setNerve(&NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance);
+        setNerve(pNerve);
         MR::listenStageSwitchOnA(this, MR::Functor(this, func));
     }
     else if (MR::tryRegisterDemoCast(this, rIter)) {
-        setNerve(&NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance);
+        setNerve(pNerve);
         MR::registerDemoActionFunctor(this, MR::Functor(this, func), 0);
     }
     else if (mSteamForeverMode)
