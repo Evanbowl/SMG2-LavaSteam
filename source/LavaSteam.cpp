@@ -200,6 +200,7 @@ void LavaSteam::exeSteamEnd() {
 void LavaSteam::exeOff() {
     if (MR::isFirstStep(this)) {
         MR::deleteEffectAll(this);
+        MR::emitEffect(this, "Off");
     }
 }
 
