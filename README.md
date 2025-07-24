@@ -7,9 +7,6 @@ Wait Phase: The Lava Steam is not emitting any steam.<br/>
 Sign Phase: The Lava Steam emits a small and harmless steam cloud.<br/>
 Steam Phase: The Lava Steam emits a large steam cloud and damages the player on contact.<br/>
 
-The `SW_SLEEP` functionality has been removed from Lava Steam since this Switch option as a whole is not present in SMG2.<br/>
-
-
 This variant of `LavaSteam` comes with new parameters.
 
 |Parameter|Data Type|Function|Description|Default Values|
@@ -22,6 +19,7 @@ This variant of `LavaSteam` comes with new parameters.
 |`Obj_arg5`|bool|Invert Switch and Demo behavior|If set, the Steam will be deactivated by Demo and `SW_A`.|false|
 |`SW_A (Read)`|-|Activate|Activates and starts from the phase defined in `Obj_arg3`.|-|
 |`SW_B (Read)`|-|Deactivate|Deactivates the steam emission.|-|
+|`SW_AWAKE`|-|Toggle|-|-|
 |Demo|-|Activate|Activates and starts from the phase defined in `Obj_arg3`.<br/>Use `ActionType` 3 in the demo sheet.|-|<br/>
 
 To use Lava Steam in a demo, the following entry must be included in the `ObjNameTable`.<br/>
