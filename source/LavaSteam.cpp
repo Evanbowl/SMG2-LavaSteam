@@ -24,7 +24,7 @@ void LavaSteam::init(const JMapInfoIter& rIter) {
     MR::setEffectHostSRT(this, "Sign", &mTranslation, &mRotation, &mEffectSRTVec);
 
     HitSensor* pSensor = getSensor("body");
-    
+
     MR::setClippingTypeSphere(this, 250.0f, &pSensor->mPosition);
 
     Nerve* pNerve = &NrvLavaSteam::HostTypeWait::sInstance;
@@ -44,7 +44,7 @@ void LavaSteam::init(const JMapInfoIter& rIter) {
             pNerve = &NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance;
     }
     
-    if (MR::useStageSwitchReadA(this, rIter)) {
+    if (MR::isExistStageSwitchA(rIter)) {
         setNerve(pNerve);
         MR::listenStageSwitchOnA(this, MR::Functor(this, func));
     }
@@ -55,10 +55,9 @@ void LavaSteam::init(const JMapInfoIter& rIter) {
     else if (mSteamForeverMode)
         setNerve(&NrvLavaSteam::HostTypeSteam::sInstance);
     
-    if (MR::useStageSwitchReadB(this, rIter))
+    if (MR::isExistStageSwitchB(rIter))
         MR::listenStageSwitchOnB(this, MR::Functor(this, &LavaSteam::setOff));
 
-    //MR::useStageSwitchSleep(this, rIter);
     makeActorAppeared();
 }
 
@@ -165,7 +164,7 @@ void LavaSteam::exeWait() {
         mEffectSRTVec.setAll(1.0f);
     }
 
-    if (MR::isGreaterStep(this, mSignTime-38) && MR::isLessStep(this, mSignTime-30)) {
+    if (MR::isGreaterStep(this, mSignTime-8) && MR::isLessEqualStep(this, mSignTime)) {
         int step = getNerveStep();
         f32 f = MR::getEaseInValue(((mSignTime-30)-step)*0.125f, 0.001f, 1.0f, 1.0f);
         mEffectSRTVec.setAll(f);
