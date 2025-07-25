@@ -1,5 +1,4 @@
 #include "LavaSteam.h"
-#include "revolution/types.h"
 
 LavaSteam::LavaSteam(const char* pName) : LiveActor(pName) {
     mInterval = 90;
@@ -166,7 +165,7 @@ void LavaSteam::exeWait() {
 
     if (MR::isGreaterStep(this, mSignTime-8) && MR::isLessEqualStep(this, mSignTime)) {
         int step = getNerveStep();
-        f32 f = MR::getEaseInValue(((mSignTime-30)-step)*0.125f, 0.001f, 1.0f, 1.0f);
+        f32 f = MR::getEaseInValue(((mSignTime)-step)*0.125f, 0.001f, 1.0f, 1.0f);
         mEffectSRTVec.setAll(f);
     }
 
