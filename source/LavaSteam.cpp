@@ -29,27 +29,28 @@ void LavaSteam::init(const JMapInfoIter& rIter) {
     Nerve* pNerve = &NrvLavaSteam::HostTypeWait::sInstance;
     initNerve(pNerve, 0);
     
-    void (LavaSteam::* func)() = &LavaSteam::startSteam;
+    void (LavaSteam::* pFunc)() = &LavaSteam::startSteam;
 
     if (signOnActivate) {
-        func = &LavaSteam::startSteamSign;
+        pFunc = &LavaSteam::startSteamSign;
     }
     else {
         if (offMode) {
             pNerve = &NrvLavaSteam::HostTypeWait::sInstance;
-            func = &LavaSteam::setOff;
+            pFunc = &LavaSteam::setOff;
         }
-        else
+        else {
             pNerve = &NrvLavaSteam::HostTypeWaitForSwitchOn::sInstance;
+        }
     }
     
     if (MR::isExistStageSwitchA(rIter)) {
         setNerve(pNerve);
-        MR::listenStageSwitchOnA(this, MR::Functor(this, func));
+        MR::listenStageSwitchOnA(this, MR::Functor(this, pFunc));
     }
     else if (MR::tryRegisterDemoCast(this, rIter)) {
         setNerve(pNerve);
-        MR::registerDemoActionFunctor(this, MR::Functor(this, func), 0);
+        MR::registerDemoActionFunctor(this, MR::Functor(this, pFunc), 0);
     }
     else if (mSteamForeverMode)
         setNerve(&NrvLavaSteam::HostTypeSteam::sInstance);
@@ -145,15 +146,17 @@ void LavaSteam::attackSensor(HitSensor* pSender, HitSensor* pReceiver) {
     }
 }
 
-void LavaSteam::startClipped() {
-    LiveActor::startClipped();
-    
-    if (!mSteamForeverMode)
-        MR::deleteEffectAll(this);
-}
 
 void LavaSteam::startSteam() {
     setNerve(&NrvLavaSteam::HostTypeSteam::sInstance);
+}
+
+void LavaSteam::startSteamSign() {
+    setNerve(&NrvLavaSteam::HostTypeWait::sInstance);
+}
+
+void LavaSteam::setOff() {
+    setNerve(&NrvLavaSteam::HostTypeOff::sInstance);
 }
 
 void LavaSteam::exeWait() {
@@ -165,8 +168,8 @@ void LavaSteam::exeWait() {
 
     if (MR::isGreaterStep(this, mSignTime-8) && MR::isLessEqualStep(this, mSignTime)) {
         int step = getNerveStep();
-        f32 f = MR::getEaseInValue(((mSignTime)-step)*0.125f, 0.001f, 1.0f, 1.0f);
-        mEffectSRTVec.setAll(f);
+        f32 easeInValue = MR::getEaseInValue(((mSignTime)-step)*0.125f, 0.001f, 1.0f, 1.0f);
+        mEffectSRTVec.setAll(easeInValue);
     }
 
     if (MR::isStep(this, mSignTime))
@@ -200,14 +203,6 @@ void LavaSteam::exeOff() {
         MR::deleteEffectAll(this);
         MR::emitEffect(this, "Off");
     }
-}
-
-void LavaSteam::startSteamSign() {
-    setNerve(&NrvLavaSteam::HostTypeWait::sInstance);
-}
-
-void LavaSteam::setOff() {
-    setNerve(&NrvLavaSteam::HostTypeOff::sInstance);
 }
 
 LavaSteam::~LavaSteam() {

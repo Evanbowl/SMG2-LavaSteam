@@ -7,15 +7,14 @@ public:
     virtual ~LavaSteam();
     virtual void init(const JMapInfoIter& rIter);
     virtual void initAfterPlacement();
-    virtual void startClipped();
     virtual void attackSensor(HitSensor* pSender, HitSensor* pReceiver);
     void startSteam();
+    void startSteamSign();
+    void setOff();
     void exeWait();
     void exeSteam();
     void exeSteamEnd();
     void exeOff();
-    void startSteamSign();
-    void setOff();
 
     s32 mInterval;
     s32 mSignTime;
@@ -26,9 +25,9 @@ public:
 };
 
 namespace NrvLavaSteam {
-    NERVE(HostTypeSteamEnd);
-    NERVE(HostTypeSteam);
     NERVE(HostTypeWait);
     NERVE(HostTypeWaitForSwitchOn);
+    NERVE(HostTypeSteam);
+    NERVE(HostTypeSteamEnd);
     NERVE(HostTypeOff);
 };
