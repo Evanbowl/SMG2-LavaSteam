@@ -3,6 +3,11 @@
   "Author": "Evanbowl",
   "Description": "A steam geyser found in Melty Molten Galaxy. It damages the player if contact is made with the steam.",
   "InstallDependencies": ["Syati_ObjectFactories", "Syati_Init"],
+  "SupportedGames": [
+    "SB4E",
+    "SB4P",
+    "SB4J"
+  ],
   "BuildTasks": [
     {
       "Task": "Copy",
